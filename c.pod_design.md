@@ -32,18 +32,6 @@ kubectl get po --show-labels
 </p>
 </details>
 
-### Change the labels of pod 'nginx2' to be app=v2
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl label po nginx2 app=v2 --overwrite
-```
-
-</p>
-</details>
-
 ### Get the label 'app' for the pods (show a column with APP labels)
 
 <details><summary>show</summary>
@@ -74,21 +62,6 @@ kubectl get po --selector=app=v2
 </p>
 </details>
 
-### Remove the 'app' label from the pods we created before
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl label po nginx1 nginx2 nginx3 app-
-# or
-kubectl label po nginx{1..3} app-
-# or
-kubectl label po -l app app-
-```
-
-</p>
-</details>
 
 ### Create a pod that will be deployed to a Node that has the label 'accelerator=nvidia-tesla-p100'
 
@@ -183,30 +156,6 @@ As an alternative to using `| grep` you can use jsonPath like `kubectl get po ng
 </p>
 </details>
 
-### Remove the annotations for these three pods
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl annotate po nginx{1..3} description-
-```
-
-</p>
-</details>
-
-### Remove these pods to have a clean state in your cluster
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl delete po nginx{1..3}
-```
-
-</p>
-</details>
-
 ## Deployments
 
 kubernetes.io > Documentation > Concepts > Workloads > Controllers > [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment)
@@ -269,34 +218,6 @@ kubectl get rs nginx-7bf7478b77 -o yaml
 </p>
 </details>
 
-### Get the YAML for one of the pods
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get po # get all the pods
-# OR you can find pods directly by:
-kubectl get po -l run=nginx # if you created deployment by 'run' command
-kubectl get po -l app=nginx # if you created deployment by 'create' command
-kubectl get po nginx-7bf7478b77-gjzp8 -o yaml
-```
-
-</p>
-</details>
-
-### Check how the deployment rollout is going
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout status deploy nginx
-```
-
-</p>
-</details>
-
 ### Update the nginx image to nginx:1.19.8
 
 <details><summary>show</summary>
@@ -309,93 +230,6 @@ kubectl edit deploy nginx # change the .spec.template.spec.containers[0].image
 ```
 
 The syntax of the 'kubectl set image' command is `kubectl set image (-f FILENAME | TYPE NAME) CONTAINER_NAME_1=CONTAINER_IMAGE_1 ... CONTAINER_NAME_N=CONTAINER_IMAGE_N [options]`
-
-</p>
-</details>
-
-### Check the rollout history and confirm that the replicas are OK
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout history deploy nginx
-kubectl get deploy nginx
-kubectl get rs # check that a new replica set has been created
-kubectl get po
-```
-
-</p>
-</details>
-
-### Undo the latest rollout and verify that new pods have the old image (nginx:1.18.0)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout undo deploy nginx
-# wait a bit
-kubectl get po # select one 'Running' Pod
-kubectl describe po nginx-5ff4457d65-nslcl | grep -i image # should be nginx:1.18.0
-```
-
-</p>
-</details>
-
-### Do an on purpose update of the deployment with a wrong image nginx:1.91
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl set image deploy nginx nginx=nginx:1.91
-# or
-kubectl edit deploy nginx
-# change the image to nginx:1.91
-# vim tip: type (without quotes) '/image' and Enter, to navigate quickly
-```
-
-</p>
-</details>
-
-### Verify that something's wrong with the rollout
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout status deploy nginx
-# or
-kubectl get po # you'll see 'ErrImagePull' or 'ImagePullBackOff'
-```
-
-</p>
-</details>
-
-
-### Return the deployment to the second revision (number 2) and verify the image is nginx:1.19.8
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout undo deploy nginx --to-revision=2
-kubectl describe deploy nginx | grep Image:
-kubectl rollout status deploy nginx # Everything should be OK
-```
-
-</p>
-</details>
-
-### Check the details of the fourth revision (number 4)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout history deploy nginx --revision=4 # You'll also see the wrong image displayed here
-```
 
 </p>
 </details>
@@ -421,48 +255,6 @@ kubectl describe deploy nginx
 
 ```bash
 kubectl autoscale deploy nginx --min=5 --max=10 --cpu-percent=80
-```
-
-</p>
-</details>
-
-### Pause the rollout of the deployment
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout pause deploy nginx
-```
-
-</p>
-</details>
-
-### Update the image to nginx:1.19.9 and check that there's nothing going on, since we paused the rollout
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl set image deploy nginx nginx=nginx:1.19.9
-# or
-kubectl edit deploy nginx
-# change the image to nginx:1.19.9
-kubectl rollout history deploy nginx # no new revision
-```
-
-</p>
-</details>
-
-### Resume the rollout and check that the nginx:1.19.9 image has been applied
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout resume deploy nginx
-kubectl rollout history deploy nginx
-kubectl rollout history deploy nginx --revision=6 # insert the number of your latest revision
 ```
 
 </p>
@@ -497,67 +289,6 @@ kubectl create job pi  --image=perl -- perl -Mbignum=bpi -wle 'print bpi(2000)'
 </p>
 </details>
 
-### Wait till it's done, get the output
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get jobs -w # wait till 'SUCCESSFUL' is 1 (will take some time, perl image might be big)
-kubectl get po # get the pod name
-kubectl logs pi-**** # get the pi numbers
-kubectl delete job pi
-```
-OR 
-
-```bash
-kubectl get jobs -w # wait till 'SUCCESSFUL' is 1 (will take some time, perl image might be big)
-kubectl logs job/pi
-kubectl delete job pi
-```
-
-</p>
-</details>
-
-### Create a job with the image busybox that executes the command 'echo hello;sleep 30;echo world'
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create job busybox --image=busybox -- /bin/sh -c 'echo hello;sleep 30;echo world'
-```
-
-</p>
-</details>
-
-### Follow the logs for the pod (you'll wait for 30 seconds)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get po # find the job pod
-kubectl logs busybox-ptx58 -f # follow the logs
-```
-
-</p>
-</details>
-
-### See the status of the job, describe it and see the logs
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get jobs
-kubectl describe jobs busybox
-kubectl logs job/busybox
-```
-
-</p>
-</details>
-
 ### Delete the job
 
 <details><summary>show</summary>
@@ -567,48 +298,6 @@ kubectl logs job/busybox
 kubectl delete job busybox
 ```
 
-</p>
-</details>
-
-### Create a job but ensure that it will be automatically terminated by kubernetes if it takes more than 30 seconds to execute
-
-<details><summary>show</summary>
-<p>
-  
-```bash
-kubectl create job busybox --image=busybox --dry-run=client -o yaml -- /bin/sh -c 'while true; do echo hello; sleep 10;done' > job.yaml
-vi job.yaml
-```
-  
-Add job.spec.activeDeadlineSeconds=30
-
-```bash
-apiVersion: batch/v1
-kind: Job
-metadata:
-  creationTimestamp: null
-  labels:
-    run: busybox
-  name: busybox
-spec:
-  activeDeadlineSeconds: 30 # add this line
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        run: busybox
-    spec:
-      containers:
-      - args:
-        - /bin/sh
-        - -c
-        - while true; do echo hello; sleep 10;done
-        image: busybox
-        name: busybox
-        resources: {}
-      restartPolicy: OnFailure
-status: {}
-```
 </p>
 </details>
 
@@ -666,58 +355,7 @@ kubectl delete jobs busybox
 </p>
 </details>
 
-### Create the same job, but make it run 5 parallel times
 
-<details><summary>show</summary>
-<p>
-
-```bash
-vi job.yaml
-```
-
-Add job.spec.parallelism=5
-
-```YAML
-apiVersion: batch/v1
-kind: Job
-metadata:
-  creationTimestamp: null
-  labels:
-    run: busybox
-  name: busybox
-spec:
-  parallelism: 5 # add this line
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        run: busybox
-    spec:
-      containers:
-      - args:
-        - /bin/sh
-        - -c
-        - echo hello;sleep 30;echo world
-        image: busybox
-        name: busybox
-        resources: {}
-      restartPolicy: OnFailure
-status: {}
-```
-
-```bash
-kubectl create -f job.yaml
-kubectl get jobs
-```
-
-It will take some time for the parallel jobs to finish (>= 30 seconds)
-
-```bash
-kubectl delete job busybox
-```
-
-</p>
-</details>
 
 ## Cron jobs
 
@@ -747,50 +385,6 @@ kubectl get po --show-labels # observe that the pods have a label that mentions 
 kubectl logs busybox-1529745840-m867r
 # Bear in mind that Kubernetes will run a new job/pod for each new cron job
 kubectl delete cj busybox
-```
-
-</p>
-</details>
-
-### Create a cron job with image busybox that runs every minute and writes 'date; echo Hello from the Kubernetes cluster' to standard output. The cron job should be terminated if it takes more than 17 seconds to start execution after its schedule.
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create cronjob time-limited-job --image=busybox --restart=Never --dry-run=client --schedule="* * * * *" -o yaml -- /bin/sh -c 'date; echo Hello from the Kubernetes cluster' > time-limited-job.yaml
-vi time-limited-job.yaml
-```
-Add cronjob.spec.jobTemplate.spec.activeDeadlineSeconds=17
-
-```bash
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  creationTimestamp: null
-  name: time-limited-job
-spec:
-  jobTemplate:
-    metadata:
-      creationTimestamp: null
-      name: time-limited-job
-    spec:
-      activeDeadlineSeconds: 17 # add this line
-      template:
-        metadata:
-          creationTimestamp: null
-        spec:
-          containers:
-          - args:
-            - /bin/sh
-            - -c
-            - date; echo Hello from the Kubernetes cluster
-            image: busybox
-            name: time-limited-job
-            resources: {}
-          restartPolicy: Never
-  schedule: '* * * * *'
-status: {}
 ```
 
 </p>

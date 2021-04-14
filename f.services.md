@@ -109,69 +109,6 @@ kubectl delete pod nginx # Deletes the pod
 </p>
 </details>
 
-### Create a deployment called foo using image 'dgkanatsios/simpleapp' (a simple server that returns hostname) and 3 replicas. Label it as 'app=foo'. Declare that containers in this pod will accept traffic on port 8080 (do NOT create a service yet)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create deploy foo --image=dgkanatsios/simpleapp --port=8080 --replicas=3
-```
-</p>
-</details>
-
-### Get the pod IPs. Create a temp busybox pod and try hitting them on port 8080
-
-<details><summary>show</summary>
-<p>
-
-
-```bash
-kubectl get pods -l app=foo -o wide # 'wide' will show pod IPs
-kubectl run busybox --image=busybox --restart=Never -it --rm -- sh
-wget -O- POD_IP:8080 # do not try with pod name, will not work
-# try hitting all IPs to confirm that hostname is different
-exit
-# or
-kubectl get po -o wide -l app=foo | awk '{print $6}' | grep -v IP | xargs -L1 -I '{}' kubectl run --rm -ti tmp --restart=Never --image=busybox -- wget -O- http://\{\}:8080
-```
-
-</p>
-</details>
-
-### Create a service that exposes the deployment on port 6262. Verify its existence, check the endpoints
-
-<details><summary>show</summary>
-<p>
-
-
-```bash
-kubectl expose deploy foo --port=6262 --target-port=8080
-kubectl get service foo # you will see ClusterIP as well as port 6262
-kubectl get endpoints foo # you will see the IPs of the three replica nodes, listening on port 8080
-```
-
-</p>
-</details>
-
-### Create a temp busybox pod and connect via wget to foo service. Verify that each time there's a different hostname returned. Delete deployment and services to cleanup the cluster
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get svc # get the foo service ClusterIP
-kubectl run busybox --image=busybox -it --rm --restart=Never -- sh
-wget -O- foo:6262 # DNS works! run it many times, you'll see different pods responding
-wget -O- SERVICE_CLUSTER_IP:6262 # ClusterIP works as well
-# you can also kubectl logs on deployment pods to see the container logs
-kubectl delete svc foo
-kubectl delete deploy foo
-```
-
-</p>
-</details>
-
 ### Create an nginx deployment of 2 replicas, expose it via a ClusterIP service on port 80. Create a NetworkPolicy so that only pods with labels 'access: granted' can access the deployment and apply it
 
 kubernetes.io > Documentation > Concepts > Services, Load Balancing, and Networking > [Network Policies](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
