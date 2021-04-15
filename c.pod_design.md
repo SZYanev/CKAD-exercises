@@ -426,47 +426,6 @@ kubectl autoscale deploy nginx --min=5 --max=10 --cpu-percent=80
 </p>
 </details>
 
-### Pause the rollout of the deployment
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout pause deploy nginx
-```
-
-</p>
-</details>
-
-### Update the image to nginx:1.19.9 and check that there's nothing going on, since we paused the rollout
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl set image deploy nginx nginx=nginx:1.19.9
-# or
-kubectl edit deploy nginx
-# change the image to nginx:1.19.9
-kubectl rollout history deploy nginx # no new revision
-```
-
-</p>
-</details>
-
-### Resume the rollout and check that the nginx:1.19.9 image has been applied
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout resume deploy nginx
-kubectl rollout history deploy nginx
-kubectl rollout history deploy nginx --revision=6 # insert the number of your latest revision
-```
-
-</p>
-</details>
 
 ### Delete the deployment and the horizontal pod autoscaler you created
 
