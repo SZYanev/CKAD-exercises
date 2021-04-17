@@ -5,90 +5,6 @@
 
 kubernetes.io > Documentation > Tasks > Configure Pods and Containers > [Configure a Pod to Use a ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
 
-### Create a configmap named config with values foo=lala,foo2=lolo
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create configmap config --from-literal=foo=lala --from-literal=foo2=lolo
-```
-
-</p>
-</details>
-
-### Display its values
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get cm config -o yaml
-# or
-kubectl describe cm config
-```
-
-</p>
-</details>
-
-### Create and display a configmap from a file
-
-Create the file with
-
-```bash
-echo -e "foo3=lili\nfoo4=lele" > config.txt
-```
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create cm configmap2 --from-file=config.txt
-kubectl get cm configmap2 -o yaml
-```
-
-</p>
-</details>
-
-### Create and display a configmap from a .env file
-
-Create the file with the command
-
-```bash
-echo -e "var1=val1\n# this is a comment\n\nvar2=val2\n#anothercomment" > config.env
-```
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create cm configmap3 --from-env-file=config.env
-kubectl get cm configmap3 -o yaml
-```
-
-</p>
-</details>
-
-### Create and display a configmap from a file, giving the key 'special'
-
-Create the file with
-
-```bash
-echo -e "var3=val3\nvar4=val4" > config4.txt
-```
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create cm configmap4 --from-file=special=config4.txt
-kubectl describe cm configmap4
-kubectl get cm configmap4 -o yaml
-```
-
-</p>
-</details>
-
 ### Create a configMap called 'options' with the value var5=val5. Create a new nginx pod that loads the value from variable 'var5' in an env variable called 'option'
 
 <details><summary>show</summary>
@@ -317,18 +233,6 @@ kubectl run nginx --image=nginx --restart=Never --requests='cpu=100m,memory=256M
 kubernetes.io > Documentation > Concepts > Configuration > [Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
 
 kubernetes.io > Documentation > Tasks > Inject Data Into Applications > [Distribute Credentials Securely Using Secrets](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/)
-
-### Create a secret called mysecret with the values password=mypass
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create secret generic mysecret --from-literal=password=mypass
-```
-
-</p>
-</details>
 
 ### Create a secret called mysecret2 that gets key/value from a file
 

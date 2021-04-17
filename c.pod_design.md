@@ -388,18 +388,6 @@ kubectl rollout status deploy nginx # Everything should be OK
 </p>
 </details>
 
-### Check the details of the fourth revision (number 4)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout history deploy nginx --revision=4 # You'll also see the wrong image displayed here
-```
-
-</p>
-</details>
-
 ### Scale the deployment to 5 replicas
 
 <details><summary>show</summary>
@@ -454,20 +442,6 @@ kubectl rollout history deploy nginx # no new revision
 </p>
 </details>
 
-### Resume the rollout and check that the nginx:1.19.9 image has been applied
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl rollout resume deploy nginx
-kubectl rollout history deploy nginx
-kubectl rollout history deploy nginx --revision=6 # insert the number of your latest revision
-```
-
-</p>
-</details>
-
 ### Delete the deployment and the horizontal pod autoscaler you created
 
 <details><summary>show</summary>
@@ -484,92 +458,6 @@ kubectl delete deploy/nginx hpa/nginx
 </details>
 
 ## Jobs
-
-### Create a job named pi with image perl that runs the command with arguments "perl -Mbignum=bpi -wle 'print bpi(2000)'"
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create job pi  --image=perl -- perl -Mbignum=bpi -wle 'print bpi(2000)'
-```
-
-</p>
-</details>
-
-### Wait till it's done, get the output
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get jobs -w # wait till 'SUCCESSFUL' is 1 (will take some time, perl image might be big)
-kubectl get po # get the pod name
-kubectl logs pi-**** # get the pi numbers
-kubectl delete job pi
-```
-OR 
-
-```bash
-kubectl get jobs -w # wait till 'SUCCESSFUL' is 1 (will take some time, perl image might be big)
-kubectl logs job/pi
-kubectl delete job pi
-```
-
-</p>
-</details>
-
-### Create a job with the image busybox that executes the command 'echo hello;sleep 30;echo world'
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create job busybox --image=busybox -- /bin/sh -c 'echo hello;sleep 30;echo world'
-```
-
-</p>
-</details>
-
-### Follow the logs for the pod (you'll wait for 30 seconds)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get po # find the job pod
-kubectl logs busybox-ptx58 -f # follow the logs
-```
-
-</p>
-</details>
-
-### See the status of the job, describe it and see the logs
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl get jobs
-kubectl describe jobs busybox
-kubectl logs job/busybox
-```
-
-</p>
-</details>
-
-### Delete the job
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl delete job busybox
-```
-
-</p>
-</details>
-
 ### Create a job but ensure that it will be automatically terminated by kubernetes if it takes more than 30 seconds to execute
 
 <details><summary>show</summary>
@@ -747,50 +635,6 @@ kubectl get po --show-labels # observe that the pods have a label that mentions 
 kubectl logs busybox-1529745840-m867r
 # Bear in mind that Kubernetes will run a new job/pod for each new cron job
 kubectl delete cj busybox
-```
-
-</p>
-</details>
-
-### Create a cron job with image busybox that runs every minute and writes 'date; echo Hello from the Kubernetes cluster' to standard output. The cron job should be terminated if it takes more than 17 seconds to start execution after its schedule.
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl create cronjob time-limited-job --image=busybox --restart=Never --dry-run=client --schedule="* * * * *" -o yaml -- /bin/sh -c 'date; echo Hello from the Kubernetes cluster' > time-limited-job.yaml
-vi time-limited-job.yaml
-```
-Add cronjob.spec.jobTemplate.spec.activeDeadlineSeconds=17
-
-```bash
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  creationTimestamp: null
-  name: time-limited-job
-spec:
-  jobTemplate:
-    metadata:
-      creationTimestamp: null
-      name: time-limited-job
-    spec:
-      activeDeadlineSeconds: 17 # add this line
-      template:
-        metadata:
-          creationTimestamp: null
-        spec:
-          containers:
-          - args:
-            - /bin/sh
-            - -c
-            - date; echo Hello from the Kubernetes cluster
-            image: busybox
-            name: time-limited-job
-            resources: {}
-          restartPolicy: Never
-  schedule: '* * * * *'
-status: {}
 ```
 
 </p>
