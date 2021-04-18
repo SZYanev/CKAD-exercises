@@ -47,48 +47,6 @@ kubectl delete -f pod.yaml
 </p>
 </details>
 
-### Modify the pod.yaml file so that liveness probe starts kicking in after 5 seconds whereas the interval between probes would be 5 seconds. Run it, check the probe, delete it.
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl explain pod.spec.containers.livenessProbe # get the exact names
-```
-
-```YAML
-apiVersion: v1
-kind: Pod
-metadata:
-  creationTimestamp: null
-  labels:
-    run: nginx
-  name: nginx
-spec:
-  containers:
-  - image: nginx
-    imagePullPolicy: IfNotPresent
-    name: nginx
-    resources: {}
-    livenessProbe: 
-      initialDelaySeconds: 5 # add this line
-      periodSeconds: 5 # add this line as well
-      exec:
-        command:
-        - ls
-  dnsPolicy: ClusterFirst
-  restartPolicy: Never
-status: {}
-```
-
-```bash
-kubectl create -f pod.yaml
-kubectl describe po nginx | grep -i liveness
-kubectl delete -f pod.yaml
-```
-
-</p>
-</details>
 
 ### Create an nginx pod (that includes port 80) with an HTTP readinessProbe on path '/' on port 80. Again, run it, check the readinessProbe, delete it.
 
@@ -158,20 +116,6 @@ kubectl -n production get events | grep -i "Liveness probe failed"
 </p>
 </details>
 
-## Logging
-
-### Create a busybox pod that runs 'i=0; while true; do echo "$i: $(date)"; i=$((i+1)); sleep 1; done'. Check its logs
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl run busybox --image=busybox --restart=Never -- /bin/sh -c 'i=0; while true; do echo "$i: $(date)"; i=$((i+1)); sleep 1; done'
-kubectl logs busybox -f # follow the logs
-```
-
-</p>
-</details>
 
 ## Debugging
 
@@ -186,36 +130,6 @@ kubectl run busybox --restart=Never --image=busybox -- /bin/sh -c 'ls /notexist'
 kubectl logs busybox
 kubectl describe po busybox
 kubectl delete po busybox
-```
-
-</p>
-</details>
-
-### Create a busybox pod that runs 'notexist'. Determine if there's an error (of course there is), see it. In the end, delete the pod forcefully with a 0 grace period
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl run busybox --restart=Never --image=busybox -- notexist
-kubectl logs busybox # will bring nothing! container never started
-kubectl describe po busybox # in the events section, you'll see the error
-# also...
-kubectl get events | grep -i error # you'll see the error here as well
-kubectl delete po busybox --force --grace-period=0
-```
-
-</p>
-</details>
-
-
-### Get CPU/memory utilization for nodes ([metrics-server](https://github.com/kubernetes-incubator/metrics-server) must be running)
-
-<details><summary>show</summary>
-<p>
-
-```bash
-kubectl top nodes
 ```
 
 </p>
